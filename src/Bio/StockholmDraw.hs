@@ -185,7 +185,7 @@ setAlignmentLineInterval :: Int -> Int -> Int -> Int -> (Int,Int,Int)
 setAlignmentLineInterval letterNumberPerRow letterNumber rowIndex seqIndex = (seqIndex,currentStart,safeLength)
   where currentStart = rowIndex * letterNumberPerRow
         rowLength = letterNumberPerRow 
-	safeLength = if currentStart + rowLength >= letterNumber then (letterNumber - currentStart) else rowLength
+        safeLength = if currentStart + rowLength >= letterNumber then (letterNumber - currentStart) else rowLength
 
 makeVectorEntries :: S.SequenceEntry -> (String, V.Vector Char)
 makeVectorEntries entry = (entrySeqId,entrySeq)

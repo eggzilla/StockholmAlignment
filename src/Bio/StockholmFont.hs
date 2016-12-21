@@ -7,14 +7,14 @@
 module Bio.StockholmFont
     (linLibertineFont
     ) where
-  
-import Text.Parsec.Error
-import qualified Data.Text as T
-import Graphics.SVGFonts
-import Graphics.SVGFonts.ReadFont (loadFont')
+
+import Graphics.SVGFonts.ReadFont 
 import qualified Data.Text as T 
 
+linLibertineFontTuple :: (String, Graphics.SVGFonts.ReadFont.PreparedFont Double)
 linLibertineFontTuple = loadFont' "linLibertine" linLibertineString
+
+linLibertineFont :: Graphics.SVGFonts.ReadFont.PreparedFont Double
 linLibertineFont = snd linLibertineFontTuple
 
 linLibertineString :: T.Text

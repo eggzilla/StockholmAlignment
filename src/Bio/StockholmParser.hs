@@ -8,7 +8,6 @@ module Bio.StockholmParser (
 
 import Bio.StockholmData
 import Text.ParserCombinators.Parsec
-import Text.Parsec.Numbers
 import qualified Control.Exception.Base as CE
 import qualified Data.Text as T
 import Data.List
@@ -119,12 +118,12 @@ genParseTokSeq = do
   return $ TokSeq (T.pack _sid) (T.pack _sequence)
 
 tokenToStockholm :: T.Text -> [StockholmToken] -> StockholmAlignment
-tokenToStockholm version token = StockholmAlignment version _fileAnnotation _columnAnnotation _sequenceEntries
-  where _fileAtoken = filter isFileTok token
-        _colAtoken = filter isColATok token
-        _resAtoken = filter isResATok token
-        _seqAtoken = filter isSeqATok token
-        _seqtoken = filter isSeqTok token
+tokenToStockholm _version _token = StockholmAlignment _version _fileAnnotation _columnAnnotation _sequenceEntries
+  where _fileAtoken = filter isFileTok _token
+        _colAtoken = filter isColATok _token
+        _resAtoken = filter isResATok _token
+        _seqAtoken = filter isSeqATok _token
+        _seqtoken = filter isSeqTok _token
         _fileAnnotation = mergeFileToken _fileAtoken
         _columnAnnotation = mergeColToken _colAtoken
         mergedSeqAToken = mergeSeqAToken _seqAtoken                    
@@ -132,89 +131,89 @@ tokenToStockholm version token = StockholmAlignment version _fileAnnotation _col
         _sequenceEntries = buildSeqEntries mergedSeqAToken mergedRAToken _seqtoken
 
 isFileTok :: StockholmToken -> Bool                           
-isFileTok (TokFileA x y) = True
+isFileTok (TokFileA _ _) = True
 isFileTok _ = False
 
 isColATok :: StockholmToken -> Bool              
-isColATok (TokColA x y) = True
+isColATok (TokColA _ _) = True
 isColATok _ = False
 
 isResATok :: StockholmToken -> Bool              
-isResATok (TokResA x y z) = True
+isResATok (TokResA _ _ _) = True
 isResATok _ = False
 
 isSeqATok :: StockholmToken -> Bool              
-isSeqATok (TokSeqA x y z) = True
+isSeqATok (TokSeqA _ _ _) = True
 isSeqATok _ = False
 
 isSeqTok :: StockholmToken -> Bool              
-isSeqTok (TokSeq x y) = True
+isSeqTok (TokSeq _ _) = True
 isSeqTok _ = False              
               
 mergeFileToken :: [StockholmToken] -> [AnnotationEntry]
-mergeFileToken token = entries
-  where tags = nub (map fTag token)
-        entries = map (buildFEntry token) tags
+mergeFileToken _token = entries
+  where tags = nub (map fTag _token)
+        entries = map (buildFEntry _token) tags
 
 buildFEntry ::  [StockholmToken] ->  T.Text -> AnnotationEntry
-buildFEntry  token currentTag = entry
-  where tagToken = filter (\t -> fTag t == currentTag) token
+buildFEntry  _token currentTag = entry
+  where tagToken = filter (\t -> fTag t == currentTag) _token
         tagInfos = T.concat (map fInfo tagToken)
         entry = AnnotationEntry currentTag tagInfos
 
 mergeColToken :: [StockholmToken] -> [AnnotationEntry]
-mergeColToken token = entries
-  where tags = nub (map cTag token)
-        entries = map (buildCEntry token) tags
+mergeColToken _token = entries
+  where tags = nub (map cTag _token)
+        entries = map (buildCEntry _token) tags
 
 buildCEntry :: [StockholmToken] -> T.Text -> AnnotationEntry
-buildCEntry token currentTag = entry
-  where tagToken = filter (\t -> cTag t == currentTag) token
+buildCEntry _token currentTag = entry
+  where tagToken = filter (\t -> cTag t == currentTag) _token
         tagInfos = T.concat (map cInfo tagToken)
         entry = AnnotationEntry currentTag tagInfos
 
 mergeSeqAToken :: [StockholmToken] -> [StockholmToken]
-mergeSeqAToken token = entries
-  where aIds = nub (map aId token)
-        entries = concatMap (mergeSAIdToken token) aIds
+mergeSeqAToken _token = entries
+  where aIds = nub (map aId _token)
+        entries = concatMap (mergeSAIdToken _token) aIds
 
 mergeSAIdToken :: [StockholmToken] -> T.Text -> [StockholmToken]
-mergeSAIdToken token currentId = tagIdToken
-  where idToken = filter (\t -> aId t == currentId) token
+mergeSAIdToken _token currentId = tagIdToken
+  where idToken = filter (\t -> aId t == currentId) _token
         tags = nub (map aTag idToken)
         tagIdToken = map (mergeSAIdTagToken idToken currentId) tags
 
 mergeSAIdTagToken :: [StockholmToken] ->  T.Text -> T.Text -> StockholmToken
-mergeSAIdTagToken token currentId currentTag = entry
-  where tagToken = filter (\t -> aId t == currentId) token
+mergeSAIdTagToken _token currentId currentTag = entry
+  where tagToken = filter (\t -> aId t == currentId) _token
         tagInfos = T.concat (map aInfo tagToken)
         entry = TokSeqA currentId currentTag tagInfos
 
 mergeResAToken :: [StockholmToken] -> [StockholmToken]
-mergeResAToken token = entries
-  where rIds = nub (map rId token)
-        entries = concatMap (mergeRAIdToken token) rIds
+mergeResAToken _token = entries
+  where rIds = nub (map rId _token)
+        entries = concatMap (mergeRAIdToken _token) rIds
 
 mergeRAIdToken :: [StockholmToken] -> T.Text -> [StockholmToken]
-mergeRAIdToken token currentId = tagIdToken
-  where idToken = filter (\t -> rId t == currentId) token
+mergeRAIdToken _token currentId = tagIdToken
+  where idToken = filter (\t -> rId t == currentId) _token
         tags = nub (map rTag idToken)
         tagIdToken = map (mergeRAIdTagToken idToken currentId) tags
 
 mergeRAIdTagToken :: [StockholmToken] ->  T.Text -> T.Text -> StockholmToken
-mergeRAIdTagToken token currentId currentTag= entry
-  where tagToken = filter (\t -> rId t == currentId) token
+mergeRAIdTagToken _token currentId currentTag= entry
+  where tagToken = filter (\t -> rId t == currentId) _token
         tagInfos = T.concat (map rInfo tagToken)
         entry = TokResA currentId currentTag tagInfos
 
 buildSeqEntries :: [StockholmToken] -> [StockholmToken] -> [StockholmToken] -> [SequenceEntry]
-buildSeqEntries  seqA resA token= entries
-  where currentId = map sId token
-        entries = map (buildSeqEntry seqA resA token) currentId
+buildSeqEntries  seqA resA _token= entries
+  where currentId = map sId _token
+        entries = map (buildSeqEntry seqA resA _token) currentId
          
 buildSeqEntry :: [StockholmToken] -> [StockholmToken] -> [StockholmToken] -> T.Text -> SequenceEntry
-buildSeqEntry seqAtok resAtok token currentId = entry 
-  where idToken = filter (\t -> sId t == currentId ) token
+buildSeqEntry seqAtok resAtok _token currentId = entry 
+  where idToken = filter (\t -> sId t == currentId ) _token
         idSAToken = filter (\t -> aId t == currentId ) seqAtok
         idRAToken = filter (\t -> rId t == currentId ) resAtok
         seqA = map buildSAEntry idSAToken
