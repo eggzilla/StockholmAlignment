@@ -1,4 +1,4 @@
--- | 
+-- | Functions for visualising Stockholm alignments
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies     #-}

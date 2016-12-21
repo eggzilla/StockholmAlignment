@@ -1,4 +1,4 @@
--- |
+-- | Module exporting SVG Font for visualising Stockholm alignments
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies     #-}

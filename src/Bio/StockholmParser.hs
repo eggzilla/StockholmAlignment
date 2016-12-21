@@ -1,4 +1,4 @@
--- | Parse Stockholm alignments
+-- | Functions for parsing Stockholm alignments
 module Bio.StockholmParser (
                        readExistingStockholm,
                        parseStockholm,
