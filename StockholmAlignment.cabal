@@ -1,7 +1,7 @@
 name:                StockholmAlignment
 version:             1.0.0
-synopsis:            Libary containing parsing and visualisation functions and datastructures for Stockholm aligmnent format.
--- description:         
+synopsis:            Libary for Stockholm aligmnent format
+description:         Libary containing parsing and visualisation functions and datastructures for Stockholm aligmnent format
 license:             GPL-3
 license-file:        LICENSE
 author:              Florian Eggenhofer
