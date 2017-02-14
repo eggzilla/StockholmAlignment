@@ -15,8 +15,8 @@ import System.Directory
 import Data.Either.Unwrap
 
 readExistingStockholm :: String -> IO (Either String [StockholmAlignment])
-readExistingStockholm filePath = do
-  if null filePath 
+readExistingStockholm filePath =
+  if null filePath
     then return (Left "")
     else do
       fileExists <- doesFileExist filePath
@@ -29,12 +29,12 @@ readExistingStockholm filePath = do
          else return (Left ("Could not find stockholm alignment file with path:" ++ filePath))
 
 -- | parse 
-parseStockholm :: [Char] -> Either ParseError [StockholmAlignment]
+parseStockholm :: String -> Either ParseError [StockholmAlignment]
 parseStockholm input = parse genParseStockholms "Stockholm" input
 
 -- | parse StockholmAlignment from input filePath                      
 readStockholm :: String -> IO (Either ParseError [StockholmAlignment])
-readStockholm filePath = do 
+readStockholm filePath = do
   parsedFile <- parseFromFile genParseStockholms filePath
   CE.evaluate parsedFile
 
@@ -60,8 +60,7 @@ genParseStockholm = do
 -- | Parse the input as StockholmAlignment datatype
 genParseToken :: GenParser Char st StockholmToken
 genParseToken = do
-  tok <- choice [try genParseTokFileA, try genParseTokColA, try genParseTokResA, try genParseTokSeqA, try genParseTokSeq]
-  return tok
+  choice [try genParseTokFileA, try genParseTokColA, try genParseTokResA, try genParseTokSeqA, try genParseTokSeq]
 
 genParseTokFileA :: GenParser Char st StockholmToken
 genParseTokFileA = do
@@ -72,8 +71,8 @@ genParseTokFileA = do
   many1 (char ' ')
   _info <- many1 (noneOf "\n")
   newline
-  return $ (TokFileA (T.pack _tag) (T.pack _info))
-  
+  return (TokFileA (T.pack _tag) (T.pack _info))
+
 genParseTokColA :: GenParser Char st StockholmToken
 genParseTokColA = do
   many newline
@@ -82,9 +81,9 @@ genParseTokColA = do
   _tag <- many1 (noneOf " \n")
   many1 (char ' ')
   _info <- many1 (noneOf "\n")
-  newline         
+  newline
   return $ TokColA (T.pack _tag) (T.pack _info)
-           
+
 genParseTokResA :: GenParser Char st StockholmToken
 genParseTokResA = do
   many newline
@@ -94,9 +93,9 @@ genParseTokResA = do
   many1 (char ' ')
   _tag <- many1 (noneOf " \n")
   _info <- many1 (noneOf "\n")
-  newline         
+  newline
   return $ TokResA (T.pack _id) (T.pack _tag) (T.pack _info)
-  
+
 genParseTokSeqA :: GenParser Char st StockholmToken
 genParseTokSeqA = do
   many newline
@@ -114,7 +113,7 @@ genParseTokSeq = do
   _sid <- many1 (noneOf " \n")
   many1 (char ' ')
   _sequence <- many1 (oneOf "ABCDEFGHIJKLMNOPQRSTUVWXYZ-.")
-  newline             
+  newline
   return $ TokSeq (T.pack _sid) (T.pack _sequence)
 
 tokenToStockholm :: T.Text -> [StockholmToken] -> StockholmAlignment
@@ -126,30 +125,30 @@ tokenToStockholm _version _token = StockholmAlignment _version _fileAnnotation _
         _seqtoken = filter isSeqTok _token
         _fileAnnotation = mergeFileToken _fileAtoken
         _columnAnnotation = mergeColToken _colAtoken
-        mergedSeqAToken = mergeSeqAToken _seqAtoken                    
+        mergedSeqAToken = mergeSeqAToken _seqAtoken
         mergedRAToken = mergeResAToken _resAtoken
         _sequenceEntries = buildSeqEntries mergedSeqAToken mergedRAToken _seqtoken
 
-isFileTok :: StockholmToken -> Bool                           
+isFileTok :: StockholmToken -> Bool
 isFileTok (TokFileA _ _) = True
 isFileTok _ = False
 
-isColATok :: StockholmToken -> Bool              
+isColATok :: StockholmToken -> Bool
 isColATok (TokColA _ _) = True
 isColATok _ = False
 
-isResATok :: StockholmToken -> Bool              
-isResATok (TokResA _ _ _) = True
+isResATok :: StockholmToken -> Bool
+isResATok (TokResA{}) = True
 isResATok _ = False
 
-isSeqATok :: StockholmToken -> Bool              
-isSeqATok (TokSeqA _ _ _) = True
+isSeqATok :: StockholmToken -> Bool
+isSeqATok (TokSeqA{}) = True
 isSeqATok _ = False
 
-isSeqTok :: StockholmToken -> Bool              
+isSeqTok :: StockholmToken -> Bool
 isSeqTok (TokSeq _ _) = True
-isSeqTok _ = False              
-              
+isSeqTok _ = False
+
 mergeFileToken :: [StockholmToken] -> [AnnotationEntry]
 mergeFileToken _token = entries
   where tags = nub (map fTag _token)
@@ -210,23 +209,23 @@ buildSeqEntries :: [StockholmToken] -> [StockholmToken] -> [StockholmToken] -> [
 buildSeqEntries  seqA resA _token= entries
   where currentId = map sId _token
         entries = map (buildSeqEntry seqA resA _token) currentId
-         
+
 buildSeqEntry :: [StockholmToken] -> [StockholmToken] -> [StockholmToken] -> T.Text -> SequenceEntry
-buildSeqEntry seqAtok resAtok _token currentId = entry 
+buildSeqEntry seqAtok resAtok _token currentId = entry
   where idToken = filter (\t -> sId t == currentId ) _token
         idSAToken = filter (\t -> aId t == currentId ) seqAtok
         idRAToken = filter (\t -> rId t == currentId ) resAtok
         seqA = map buildSAEntry idSAToken
-        resA = map buildRAEntry idRAToken      
+        resA = map buildRAEntry idRAToken
         tagInfos = T.concat (map sSeq idToken)
         entry = SequenceEntry currentId tagInfos seqA resA
 
-                
+
 buildSAEntry :: StockholmToken -> AnnotationEntry
 buildSAEntry tok = AnnotationEntry (aTag tok) (aInfo tok)
 
 buildRAEntry :: StockholmToken -> AnnotationEntry
 buildRAEntry tok = AnnotationEntry (rTag tok) (rInfo tok)
 
-                   
+
 

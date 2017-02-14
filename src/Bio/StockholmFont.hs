@@ -8,8 +8,8 @@ module Bio.StockholmFont
     (linLibertineFont
     ) where
 
-import Graphics.SVGFonts.ReadFont 
-import qualified Data.Text as T 
+import Graphics.SVGFonts.ReadFont
+import qualified Data.Text as T
 
 linLibertineFontTuple :: (String, Graphics.SVGFonts.ReadFont.PreparedFont Double)
 linLibertineFontTuple = loadFont' "linLibertine" linLibertineString
