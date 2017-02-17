@@ -16,9 +16,9 @@ matrix:
     - env: CABALVER=1.24 GHCVER=7.8.4
       compiler: ": #GHC 7.8.4"
       addons: {apt: {packages: [cabal-install-1.24,ghc-7.8.4,happy-1.19.4,alex-3.1.3], sources: [hvr-ghc]}}
-    - env: CABALVER=1.24 GHCVER=7.10.2
-      compiler: ": #GHC 7.10.2"
-      addons: {apt: {packages: [cabal-install-1.24,ghc-7.10.2,happy-1.19.4,alex-3.1.3], sources: [hvr-ghc]}}
+    - env: CABALVER=1.24 GHCVER=7.10.3
+      compiler: ": #GHC 7.10.3"
+      addons: {apt: {packages: [cabal-install-1.24,ghc-7.10.3,happy-1.19.4,alex-3.1.3], sources: [hvr-ghc]}}
     - env: CABALVER=1.24 GHCVER=8.0.1
       compiler: ": #GHC 8.0.1"
       addons: {apt: {packages: [cabal-install-1.24,ghc-8.0.1,happy-1.19.4,alex-3.1.3], sources: [hvr-ghc]}}
@@ -30,6 +30,8 @@ before_install:
  - export PATH=~/.cabal/bin:/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:/opt/happy/$HAPPYVER/bin:/opt/alex/$ALEXVER/bin:$PATH
 
 install:
+ - alex --version
+ - happy --version
  - cabal --version
  - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
  - if [ -f $HOME/.cabal/packages/hackage.haskell.org/00-index.tar.gz ];
