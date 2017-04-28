@@ -25,9 +25,13 @@ import Bio.StockholmFont
 
 drawStockholmLines :: Int -> Double -> V.Vector Int -> V.Vector (Int, V.Vector (Colour Double)) -> S.StockholmAlignment -> QDiagram Cairo V2 Double Any
 drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels aln = alignmentBlocks
-  where currentEntries = V.fromList (take entriesNumberCutoff (S.sequenceEntries aln))
-        entryNumber = V.length currentEntries
-        vectorEntries = V.map makeVectorEntries currentEntries
+  where seqEntries = V.fromList (take entriesNumberCutoff (S.sequenceEntries aln))
+        --consensusStructureEntry = if null (S.columnAnnotations aln) then mempty else drawConsensusStructureEntry maxIdLength (S.columnAnnotations aln)
+        maybeConsensusStructureEntry = find ((T.pack "SS_cons"==) . S.tag) (S.columnAnnotations aln)
+        consensusStructureEntry = maybe V.empty makeConsensusStructureVectorEntry maybeConsensusStructureEntry
+        entryNumber = V.length vectorEntries 
+        seqVectorEntries = V.map makeVectorEntries seqEntries
+        vectorEntries = seqVectorEntries V.++ consensusStructureEntry
         maxEntryLength = V.maximum (V.map (V.length . snd) vectorEntries)
         maxIdLength = V.maximum (V.map (length . fst) vectorEntries)
         letterWidth = 2.0 :: Double
@@ -36,8 +40,8 @@ drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparis
         colIndicescomparisonNodeLabels = V.zipWith (\a b -> (a,b)) nodeAlignmentColIndices comparisonNodeLabels
         sparseComparisonColLabels = V.map nodeToColIndices colIndicescomparisonNodeLabels
         fullComparisonColLabels = fillComparisonColLabels maxEntryLength sparseComparisonColLabels
-        alignmentBlocks = vcat' with { _sep = 6.0 } (map (drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength fullComparisonColLabels) blocks)
-
+        alignmentBlocks = vcat' with { _sep = 6.0 } (map (drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength fullComparisonColLabels) blocks)  
+        
 extractGapfreeStructure :: String -> String -> String
 extractGapfreeStructure alignedSequence regularStructure1 = entryStructure
   where regularsequence1 = map convertToRegularGap alignedSequence
@@ -150,10 +154,21 @@ drawStockholmEntryLine maxIdLength aln (seqIndex,currentStart,safeLength) = entr
         entryDia = hcat (map setAlignmentLetter entryText)
 
 drawStockholm :: Int -> S.StockholmAlignment -> QDiagram Cairo V2 Double Any
-drawStockholm entriesNumberCutoff aln = alignTL (vcat' with { _sep = 1 } (map (drawStockholmEntry maxIdLength) currentEntries))
+drawStockholm entriesNumberCutoff aln = alignTL (vcat' with { _sep = 1 } (map (drawStockholmEntry maxIdLength) currentEntries)) === consensusStructureEntry
    where currentEntries = take entriesNumberCutoff (S.sequenceEntries aln)
          --entryNumber = length currentEntries
          maxIdLength = maximum (map (T.length . S.sequenceId) currentEntries)
+         consensusStructureEntry = if null (S.columnAnnotations aln) then mempty else drawConsensusStructureEntry maxIdLength (S.columnAnnotations aln)
+
+drawConsensusStructureEntry :: Int -> [S.AnnotationEntry] -> QDiagram Cairo V2 Double Any
+drawConsensusStructureEntry maxIdLength entries = entryDia
+  where maybeSecStructureEntry = find ((T.pack "SS_cons"==) . S.tag) entries
+        entryText = T.unpack (seqId `T.append` spacer `T.append` S.annotation (fromJust maybeSecStructureEntry))
+        seqId = T.pack "SS_cons"
+        spacerLength = (maxIdLength + 3) - T.length seqId
+        spacer = T.replicate spacerLength (T.pack " ")
+        entryDia = maybe mempty (\entryText -> hcat (map setAlignmentLetter (T.unpack (S.annotation entryText)))) maybeSecStructureEntry
+
 
 drawStockholmEntry :: Int -> S.SequenceEntry -> QDiagram Cairo V2 Double Any
 drawStockholmEntry maxIdLength entry = entryDia
@@ -191,3 +206,8 @@ makeVectorEntries :: S.SequenceEntry -> (String, V.Vector Char)
 makeVectorEntries entry = (entrySeqId,entrySeq)
   where entrySeq = V.fromList (T.unpack (S.entrySequence entry))
         entrySeqId = T.unpack (S.sequenceId entry)
+
+makeConsensusStructureVectorEntry :: S.AnnotationEntry -> V.Vector (String, V.Vector Char)
+makeConsensusStructureVectorEntry entry = V.singleton (entryId,entryTxt)
+  where entryTxt = V.fromList (T.unpack (S.annotation entry))
+        entryId = T.unpack (S.tag entry)

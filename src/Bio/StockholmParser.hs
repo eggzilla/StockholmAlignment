@@ -55,6 +55,7 @@ genParseStockholm = do
   many (try newline)
   _stockholmToken <- many1 genParseToken
   string "//\n"
+  optional (try (string "\n"))
   return (tokenToStockholm (T.pack _version) _stockholmToken)
 
 -- | Parse the input as StockholmAlignment datatype
@@ -67,7 +68,7 @@ genParseTokFileA = do
   many newline
   string "#=GF"
   char ' '
-  _tag <- many1 upper
+  _tag <- many1 (oneOf "ABCDEFGHIJKLMNOPQRSTUVWXYZ*")
   many1 (char ' ')
   _info <- many1 (noneOf "\n")
   newline
