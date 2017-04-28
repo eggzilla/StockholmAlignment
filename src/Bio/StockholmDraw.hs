@@ -161,13 +161,15 @@ drawStockholm entriesNumberCutoff aln = alignTL (vcat' with { _sep = 1 } (map (d
          consensusStructureEntry = if null (S.columnAnnotations aln) then mempty else drawConsensusStructureEntry maxIdLength (S.columnAnnotations aln)
 
 drawConsensusStructureEntry :: Int -> [S.AnnotationEntry] -> QDiagram Cairo V2 Double Any
-drawConsensusStructureEntry maxIdLength entries = entryDia
+drawConsensusStructureEntry maxIdLength entries 
+  | isJust maybeSecStructureEntry = hcat (map setAlignmentLetter entryText)
+  | otherwise = mempty
   where maybeSecStructureEntry = find ((T.pack "SS_cons"==) . S.tag) entries
         entryText = T.unpack (seqId `T.append` spacer `T.append` S.annotation (fromJust maybeSecStructureEntry))
         seqId = T.pack "SS_cons"
         spacerLength = (maxIdLength + 3) - T.length seqId
         spacer = T.replicate spacerLength (T.pack " ")
-        entryDia = maybe mempty (\entryText -> hcat (map setAlignmentLetter (T.unpack (S.annotation entryText)))) maybeSecStructureEntry
+        --entryDia = maybe mempty (\entryText -> hcat (map setAlignmentLetter (T.unpack (S.annotation entryText)))) maybeSecStructureEntry
 
 
 drawStockholmEntry :: Int -> S.SequenceEntry -> QDiagram Cairo V2 Double Any
