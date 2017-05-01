@@ -23,8 +23,8 @@ import Data.List
 import Graphics.SVGFonts
 import Bio.StockholmFont
 
-drawStockholmLines :: Int -> Double -> V.Vector Int -> V.Vector (Int, V.Vector (Colour Double)) -> S.StockholmAlignment -> QDiagram Cairo V2 Double Any
-drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparisonNodeLabels aln = alignmentBlocks
+drawStockholmLines :: Int -> Double -> V.Vector (Int, V.Vector (Colour Double)) -> S.StockholmAlignment -> QDiagram Cairo V2 Double Any
+drawStockholmLines entriesNumberCutoff maxWidth columnComparisonLabels aln = alignmentBlocks
   where seqEntries = V.fromList (take entriesNumberCutoff (S.sequenceEntries aln))
         --consensusStructureEntry = if null (S.columnAnnotations aln) then mempty else drawConsensusStructureEntry maxIdLength (S.columnAnnotations aln)
         maybeConsensusStructureEntry = find ((T.pack "SS_cons"==) . S.tag) (S.columnAnnotations aln)
@@ -37,9 +37,9 @@ drawStockholmLines entriesNumberCutoff maxWidth nodeAlignmentColIndices comparis
         letterWidth = 2.0 :: Double
         availableLettersPerRow = maxWidth / letterWidth
         blocks = makeLetterIntervals entryNumber availableLettersPerRow maxEntryLength
-        colIndicescomparisonNodeLabels = V.zipWith (\a b -> (a,b)) nodeAlignmentColIndices comparisonNodeLabels
-        sparseComparisonColLabels = V.map nodeToColIndices colIndicescomparisonNodeLabels
-        fullComparisonColLabels = fillComparisonColLabels maxEntryLength sparseComparisonColLabels
+        --colIndicescomparisonNodeLabels = V.zipWith (\a b -> (a,b)) nodeAlignmentColIndices comparisonNodeLabels
+        --sparseComparisonColLabels = V.map nodeToColIndices colIndicescomparisonNodeLabels
+        fullComparisonColLabels = fillComparisonColLabels maxEntryLength columnComparisonLabels
         alignmentBlocks = vcat' with { _sep = 6.0 } (map (drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength fullComparisonColLabels) blocks)  
         
 extractGapfreeStructure :: String -> String -> String
