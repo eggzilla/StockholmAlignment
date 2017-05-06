@@ -10,6 +10,7 @@ module Bio.StockholmDraw
      drawStockholm,
      convertWUSStoDotBracket,
      extractGapfreeStructure,
+     extractGapfreeIndexedStructure,
      isGap
     ) where
 
@@ -54,6 +55,20 @@ extractGapfreeStructure alignedSequence regularStructure1 = entryStructure
         -- remove gap character postitions from structure string
         gapfreeCompleteStructure = V.filter (\(i,_) -> notElem i sequencegaps) (V.indexed completeBPStructure)
         entryStructure = map snd (V.toList  gapfreeCompleteStructure)
+
+
+extractGapfreeIndexedStructure :: String -> String -> [(Int,Char)]
+extractGapfreeIndexedStructure alignedSequence regularStructure1 = indexedEntryStructure
+  where regularsequence1 = map convertToRegularGap alignedSequence
+        bpindicestest1 = basePairIndices regularStructure1 [] 0
+        sequencegaps = elemIndices '-' regularsequence1
+        -- convert incomplete basepairs to .
+        incompleteBasepairs = filter (\(i,j) -> elem i sequencegaps || elem j sequencegaps) bpindicestest1
+        incompleteIndicesCharacterPairs = concatMap (\(a,b) -> [(a,'.'),(b,'.')]) incompleteBasepairs
+        completeBPStructure = V.update (V.fromList regularStructure1) (V.fromList incompleteIndicesCharacterPairs)
+        -- remove gap character postitions from structure string
+        gapfreeCompleteStructure = V.filter (\(i,_) -> notElem i sequencegaps) (V.indexed completeBPStructure)
+        indexedEntryStructure = (V.toList gapfreeCompleteStructure)        
 
 basePairIndices :: String -> [Int] -> Int -> [(Int,Int)]
 basePairIndices (x:xs) ys counter
