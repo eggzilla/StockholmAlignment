@@ -1,4 +1,7 @@
 -*-change-log-*-
+1.1.0 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 7. May 2017
+	* Specific column labels are now passed as color vectors independent of model indices
+	* Added consensus secondary structure to alignment visualisation
 1.0.4 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 27. April 2017
         * Added visualisation of consensus secondary structure if present
 1.0.3 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 24. April 2017

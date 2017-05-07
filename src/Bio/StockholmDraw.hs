@@ -114,10 +114,6 @@ convertWUSSCharToDotBracket c
   | c == ',' = '.'
   | otherwise = c
 
-
-nodeToColIndices :: (Int,(Int,V.Vector (Colour Double))) -> (Int,V.Vector (Colour Double))
-nodeToColIndices (colIndex,(_,colors)) = (colIndex,colors)
-
 fillComparisonColLabels :: Int ->  V.Vector (Int, V.Vector (Colour Double)) ->  V.Vector (Int, V.Vector (Colour Double))
 fillComparisonColLabels maxEntryLength sparseComparisonColLabels = fullComparisonColLabels
    where fullComparisonColLabels = V.generate maxEntryLength  (makeFullComparisonColLabel sparseComparisonColLabels)
