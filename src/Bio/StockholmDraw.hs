@@ -145,7 +145,7 @@ drawStockholmIndexLineCol :: V.Vector (Int, V.Vector (Colour Double)) -> Double 
 drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = vcat (map setAlignmentLetter entryText) <> colourBoxes # translate (r2 (0, negate ((singleBoxYLength/2)-1.25)))
   where columnNumber = fst comparisonColLabel
         -- comparisonColLabel with index zero holds label for first col
-        comparisonColLabel = comparisonColLabels V.! (entryIndex)
+        comparisonColLabel = comparisonColLabels V.! (entryIndex + 1)
         --comparisonColLabel = if (entryIndex + 1) > ((V.length comparisonColLabels) -1) then (entryIndex + 1,V.singleton white) else comparisonColLabels V.! (entryIndex + 1)
         colColours = snd comparisonColLabel
         boxNumber = fromIntegral $ V.length colColours
