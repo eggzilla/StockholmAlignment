@@ -38,9 +38,8 @@ drawStockholmLines entriesNumberCutoff maxWidth columnComparisonLabels aln = ali
         letterWidth = 2.0 :: Double
         availableLettersPerRow = maxWidth / letterWidth
         blocks = makeLetterIntervals entryNumber availableLettersPerRow maxEntryLength
-        --colIndicescomparisonNodeLabels = V.zipWith (\a b -> (a,b)) nodeAlignmentColIndices comparisonNodeLabels
-        --sparseComparisonColLabels = V.map nodeToColIndices colIndicescomparisonNodeLabels
-        fullComparisonColLabels = fillComparisonColLabels maxEntryLength columnComparisonLabels
+        --comparison labels are sparse, because some columns are not directly assigned to a node, but modeled via indel
+        fullComparisonColLabels = fillComparisonColLabels (maxEntryLength  +1) columnComparisonLabels
         alignmentBlocks = vcat' with { _sep = 6.0 } (map (drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength fullComparisonColLabels) blocks)  
         
 extractGapfreeStructure :: String -> String -> String
@@ -137,18 +136,21 @@ drawStockholmIndexLine maxIdLength indices comparisonColLabels = indexLine
         spacer = replicate spacerLength ' '
         --indexLetters = map show indices
         --indexPositions = maximum (map length indices)
-        maxEntryIndex = maximum indices
+        maxEntryIndex = 1 + maximum indices
         maxEntryText = show maxEntryIndex
         totalBoxYlength = fromIntegral (length  maxEntryText) * 2.5
         indexLine = hcat (map setAlignmentLetter spacer) ||| hcat (map (drawStockholmIndexLineCol comparisonColLabels totalBoxYlength) indices)
 
 drawStockholmIndexLineCol :: V.Vector (Int, V.Vector (Colour Double)) -> Double -> Int -> QDiagram Cairo V2 Double Any
 drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = vcat (map setAlignmentLetter entryText) <> colourBoxes # translate (r2 (0, negate ((singleBoxYLength/2)-1.25)))
-  where comparisonColLabel = comparisonColLabels V.! entryIndex
+  where columnNumber = fst comparisonColLabel
+        -- comparisonColLabel with index zero holds label for first col
+        comparisonColLabel = comparisonColLabels V.! (entryIndex)
+        --comparisonColLabel = if (entryIndex + 1) > ((V.length comparisonColLabels) -1) then (entryIndex + 1,V.singleton white) else comparisonColLabels V.! (entryIndex + 1)
         colColours = snd comparisonColLabel
         boxNumber = fromIntegral $ V.length colColours
         singleBoxYLength = totalBoxYlength / boxNumber
-        entryText = show entryIndex
+        entryText = show columnNumber
         colourBoxes = vcat (V.toList (V.map (colorBox singleBoxYLength) colColours))
 
 colorBox :: Double -> Colour Double -> QDiagram Cairo V2 Double Any
