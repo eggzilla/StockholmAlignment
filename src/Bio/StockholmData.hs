@@ -15,7 +15,7 @@ data StockholmAlignment = StockholmAlignment
   deriving (Eq)
            
 instance Show StockholmAlignment where
-    show (StockholmAlignment _v _f _c _s) = "# STOCKHOLM " ++ T.unpack _v ++ "\n" ++ concatMap (\a -> "#=GF " ++ show a) _f ++ concatMap (showSequenceSpacerEntry spacerLength) _s ++ concatMap (\a -> "#=GC " ++ showAnnotationSpacerEntry spacerLength a) _c ++ "//\n"
+    show (StockholmAlignment _v _f _c _s) = "# STOCKHOLM " ++ T.unpack _v ++ "\n" ++ concatMap (\a -> "#=GF " ++ show a) _f ++ concatMap (showSequenceSpacerEntry spacerLength) _s ++ concatMap (\a -> "#=GC " ++ showAnnotationSpacerEntry (spacerLength - 5) a) _c ++ "//\n"
      where spacerLength = (1 :: Int) + maximum (map (T.length . sequenceId) _s)
 
 data SequenceEntry = SequenceEntry
