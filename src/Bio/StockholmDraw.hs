@@ -53,7 +53,7 @@ extractGapfreeStructure alignedSequence regularStructure1 = entryStructure
         completeBPStructure = V.update (V.fromList regularStructure1) (V.fromList incompleteIndicesCharacterPairs)
         -- remove gap character postitions from structure string
         gapfreeCompleteStructure = V.filter (\(i,_) -> notElem i sequencegaps) (V.indexed completeBPStructure)
-        entryStructure = map snd (V.toList  gapfreeCompleteStructure)
+        entryStructure = map snd (V.toList gapfreeCompleteStructure)
 
 
 extractGapfreeIndexedStructure :: String -> String -> [(Int,Char)]
@@ -138,11 +138,11 @@ drawStockholmIndexLine maxIdLength indices comparisonColLabels = indexLine
         --indexPositions = maximum (map length indices)
         maxEntryIndex = 1 + maximum indices
         maxEntryText = show maxEntryIndex
-        totalBoxYlength = fromIntegral (length  maxEntryText) * 2.5
+        totalBoxYlength = fromIntegral (length maxEntryText) * 2.5
         indexLine = hcat (map setAlignmentLetter spacer) ||| hcat (map (drawStockholmIndexLineCol comparisonColLabels totalBoxYlength) indices)
 
 drawStockholmIndexLineCol :: V.Vector (Int, V.Vector (Colour Double)) -> Double -> Int -> QDiagram Cairo V2 Double Any
-drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = vcat (map setAlignmentLetter entryText) <> colourBoxes # translate (r2 (0, negate ((singleBoxYLength/2)-1.25)))
+drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = indexTextBox # translate (r2 (0, (1.25 * ((fromIntegral letterNumber))))) <> colourBoxes # translate (r2 (0, negate ((singleBoxYLength/2) - (totalBoxYlength/ 2)))) 
   where columnNumber = fst comparisonColLabel
         -- comparisonColLabel with index zero holds label for first col
         comparisonColLabel = comparisonColLabels V.! (entryIndex + 1)
@@ -152,6 +152,9 @@ drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = vcat 
         singleBoxYLength = totalBoxYlength / boxNumber
         entryText = show columnNumber
         colourBoxes = vcat (V.toList (V.map (colorBox singleBoxYLength) colColours))
+        letterNumber = Data.List.length entryText
+        textYSpacer = rect 2 (totalBoxYlength - 2.5 * ((fromIntegral letterNumber))) # lw 0.0     
+        indexTextBox =  textYSpacer === vcat (map setAlignmentLetter entryText) 
 
 colorBox :: Double -> Colour Double -> QDiagram Cairo V2 Double Any
 colorBox singleBoxYLength colColour = rect 2 singleBoxYLength # fc colColour # lw 0.1

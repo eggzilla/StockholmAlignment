@@ -1,4 +1,6 @@
 -*-change-log-*-
+1.1.2 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 14. January 2018
+	* Improved index label placement
 1.1.1 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 7. May 2017
 	* Fixed use of vector index instead of column number for col index and label placing
 1.1.0 Florian Eggenhofer <egg@informatik.uni-freiburg.de> 7. May 2017
