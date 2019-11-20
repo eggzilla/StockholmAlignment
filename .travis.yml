@@ -24,7 +24,6 @@ before_cache:
   - rm -fv $CABALHOME/packages/hackage.haskell.org/01-index.tar
   - rm -fv $CABALHOME/packages/hackage.haskell.org/01-index.tar.idx
   - rm -rfv $CABALHOME/packages/head.hackage
-  - apt-get install libpango-1.0-0 libpango1.0-dev
 matrix:
   include:
     - compiler: ghc-8.6.5
@@ -34,6 +33,7 @@ matrix:
     - compiler: ghc-8.2.2
       addons: {"apt":{"sources":["hvr-ghc"],"packages":["ghc-8.2.2","cabal-install-3.0"]}}
 before_install:
+  - sudo apt-get install libpango-1.0.0 libpango1.0-dev
   - HC=$(echo "/opt/$CC/bin/ghc" | sed 's/-/\//')
   - WITHCOMPILER="-w $HC"
   - HADDOCK=$(echo "/opt/$CC/bin/haddock" | sed 's/-/\//')
