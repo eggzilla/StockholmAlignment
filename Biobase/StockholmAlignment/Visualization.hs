@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies     #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Bio.StockholmDraw
+module Biobase.StockholmAlignment.Visualization
     (
      drawStockholmLines,
      drawStockholm,
@@ -16,13 +16,13 @@ module Bio.StockholmDraw
 
 import Diagrams.Prelude
 import Diagrams.Backend.Cairo
-import qualified Bio.StockholmData as S
+import qualified Biobase.StockholmAlignment.Types as S
 import qualified Data.Text as T
 import Data.Maybe
 import qualified Data.Vector as V
 import Data.List
 import Graphics.SVGFonts
-import Bio.StockholmFont
+import Biobase.StockholmAlignment.Font
 
 drawStockholmLines :: Int -> Double -> V.Vector (Int, V.Vector (Colour Double)) -> S.StockholmAlignment -> QDiagram Cairo V2 Double Any
 drawStockholmLines entriesNumberCutoff maxWidth columnComparisonLabels aln = alignmentBlocks
@@ -30,7 +30,7 @@ drawStockholmLines entriesNumberCutoff maxWidth columnComparisonLabels aln = ali
         --consensusStructureEntry = if null (S.columnAnnotations aln) then mempty else drawConsensusStructureEntry maxIdLength (S.columnAnnotations aln)
         maybeConsensusStructureEntry = find ((T.pack "SS_cons"==) . S.tag) (S.columnAnnotations aln)
         consensusStructureEntry = maybe V.empty makeConsensusStructureVectorEntry maybeConsensusStructureEntry
-        entryNumber = V.length vectorEntries 
+        entryNumber = V.length vectorEntries
         seqVectorEntries = V.map makeVectorEntries seqEntries
         vectorEntries = seqVectorEntries V.++ consensusStructureEntry
         maxEntryLength = V.maximum (V.map (V.length . snd) vectorEntries)
@@ -40,8 +40,8 @@ drawStockholmLines entriesNumberCutoff maxWidth columnComparisonLabels aln = ali
         blocks = makeLetterIntervals entryNumber availableLettersPerRow maxEntryLength
         --comparison labels are sparse, because some columns are not directly assigned to a node, but modeled via indel
         fullComparisonColLabels = fillComparisonColLabels (maxEntryLength  +1) columnComparisonLabels
-        alignmentBlocks = vcat' with { _sep = 6.0 } (map (drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength fullComparisonColLabels) blocks)  
-        
+        alignmentBlocks = vcat' with { _sep = 6.0 } (map (drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength fullComparisonColLabels) blocks)
+
 extractGapfreeStructure :: String -> String -> String
 extractGapfreeStructure alignedSequence regularStructure1 = entryStructure
   where regularsequence1 = map convertToRegularGap alignedSequence
@@ -67,7 +67,7 @@ extractGapfreeIndexedStructure alignedSequence regularStructure1 = indexedEntryS
         completeBPStructure = V.update (V.fromList regularStructure1) (V.fromList incompleteIndicesCharacterPairs)
         -- remove gap character postitions from structure string
         gapfreeCompleteStructure = V.filter (\(i,_) -> notElem i sequencegaps) (V.indexed completeBPStructure)
-        indexedEntryStructure = (V.toList gapfreeCompleteStructure)        
+        indexedEntryStructure = (V.toList gapfreeCompleteStructure)
 
 basePairIndices :: String -> [Int] -> Int -> [(Int,Int)]
 basePairIndices (x:xs) ys counter
@@ -131,7 +131,7 @@ drawStockholmRowBlock maxIdLength vectorEntries maxEntryLength comparisonColLabe
 
 drawStockholmIndexLine :: Int -> [Int] -> V.Vector (Int, V.Vector (Colour Double)) -> QDiagram Cairo V2 Double Any
 drawStockholmIndexLine maxIdLength indices comparisonColLabels = indexLine
-  where --entryText = (spacer ++ indexLetters)      
+  where --entryText = (spacer ++ indexLetters)
         spacerLength = maxIdLength + 3
         spacer = replicate spacerLength ' '
         --indexLetters = map show indices
@@ -142,7 +142,7 @@ drawStockholmIndexLine maxIdLength indices comparisonColLabels = indexLine
         indexLine = hcat (map setAlignmentLetter spacer) ||| hcat (map (drawStockholmIndexLineCol comparisonColLabels totalBoxYlength) indices)
 
 drawStockholmIndexLineCol :: V.Vector (Int, V.Vector (Colour Double)) -> Double -> Int -> QDiagram Cairo V2 Double Any
-drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = indexTextBox # translate (r2 (0, (1.25 * ((fromIntegral letterNumber))))) <> colourBoxes # translate (r2 (0, negate ((singleBoxYLength/2) - (totalBoxYlength/ 2)))) 
+drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = indexTextBox # translate (r2 (0, (1.25 * ((fromIntegral letterNumber))))) <> colourBoxes # translate (r2 (0, negate ((singleBoxYLength/2) - (totalBoxYlength/ 2))))
   where columnNumber = fst comparisonColLabel
         -- comparisonColLabel with index zero holds label for first col
         comparisonColLabel = comparisonColLabels V.! (entryIndex + 1)
@@ -153,8 +153,8 @@ drawStockholmIndexLineCol comparisonColLabels totalBoxYlength entryIndex = index
         entryText = show columnNumber
         colourBoxes = vcat (V.toList (V.map (colorBox singleBoxYLength) colColours))
         letterNumber = Data.List.length entryText
-        textYSpacer = rect 2 (totalBoxYlength - 2.5 * ((fromIntegral letterNumber))) # lw 0.0     
-        indexTextBox =  textYSpacer === vcat (map setAlignmentLetter entryText) 
+        textYSpacer = rect 2 (totalBoxYlength - 2.5 * ((fromIntegral letterNumber))) # lw 0.0
+        indexTextBox =  textYSpacer === vcat (map setAlignmentLetter entryText)
 
 colorBox :: Double -> Colour Double -> QDiagram Cairo V2 Double Any
 colorBox singleBoxYLength colColour = rect 2 singleBoxYLength # fc colColour # lw 0.1
@@ -177,7 +177,7 @@ drawStockholm entriesNumberCutoff aln = alignTL (vcat' with { _sep = 1 } (map (d
          consensusStructureEntry = if null (S.columnAnnotations aln) then mempty else drawConsensusStructureEntry maxIdLength (S.columnAnnotations aln)
 
 drawConsensusStructureEntry :: Int -> [S.AnnotationEntry] -> QDiagram Cairo V2 Double Any
-drawConsensusStructureEntry maxIdLength entries 
+drawConsensusStructureEntry maxIdLength entries
   | isJust maybeSecStructureEntry = hcat (map setAlignmentLetter entryText)
   | otherwise = mempty
   where maybeSecStructureEntry = find ((T.pack "SS_cons"==) . S.tag) entries

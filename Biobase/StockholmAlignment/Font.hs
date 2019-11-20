@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies     #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Bio.StockholmFont
+module Biobase.StockholmAlignment.Font
     (linLibertineFont
     ) where
 

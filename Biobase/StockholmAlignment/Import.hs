@@ -1,12 +1,12 @@
 -- | Functions for parsing Stockholm alignments
-module Bio.StockholmParser (
+module Biobase.StockholmAlignment.Import (
                        readExistingStockholm,
                        parseStockholm,
                        readStockholm,
-                       module Bio.StockholmData
+                       module Biobase.StockholmAlignment.Types
                       ) where
 
-import Bio.StockholmData
+import Biobase.StockholmAlignment.Types
 import Text.ParserCombinators.Parsec
 import qualified Control.Exception.Base as CE
 import qualified Data.Text as T
@@ -28,11 +28,11 @@ readExistingStockholm filePath =
              else return (Right (fromRight stockholmInput))
          else return (Left ("Could not find stockholm alignment file with path:" ++ filePath))
 
--- | parse 
+-- | parse
 parseStockholm :: String -> Either ParseError [StockholmAlignment]
 parseStockholm input = parse genParseStockholms "Stockholm" input
 
--- | parse StockholmAlignment from input filePath                      
+-- | parse StockholmAlignment from input filePath
 readStockholm :: String -> IO (Either ParseError [StockholmAlignment])
 readStockholm filePath = do
   parsedFile <- parseFromFile genParseStockholms filePath
@@ -227,6 +227,3 @@ buildSAEntry tok = AnnotationEntry (aTag tok) (aInfo tok)
 
 buildRAEntry :: StockholmToken -> AnnotationEntry
 buildRAEntry tok = AnnotationEntry (rTag tok) (rInfo tok)
-
-
-
