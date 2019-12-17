@@ -33,7 +33,6 @@ matrix:
     - compiler: ghc-8.2.2
       addons: {"apt":{"sources":["hvr-ghc"],"packages":["ghc-8.2.2","cabal-install-3.0"]}}
 before_install:
-  - sudo apt-get install libpango-1.0.0 libpango1.0-dev
   - HC=$(echo "/opt/$CC/bin/ghc" | sed 's/-/\//')
   - WITHCOMPILER="-w $HC"
   - HADDOCK=$(echo "/opt/$CC/bin/haddock" | sed 's/-/\//')

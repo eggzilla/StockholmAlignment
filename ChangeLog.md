@@ -1,5 +1,9 @@
 -*-change-log-*-
 
+### 1.3.0 [Florian Eggenhofer](mailto:egg@cs.uni-freiburg.de) 17. December 2019
+
+	* Moving code for visualisation to own library
+
 ### 1.2.0 [Florian Eggenhofer](mailto:egg@cs.uni-freiburg.de) 19. November 2019
 
 	* Changed to Biobase repository layout
